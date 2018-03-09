@@ -9,10 +9,6 @@
 		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	<error-page>
-		<exception-type>javax.faces.application.ViewExpiredException</exception-type>
-		<location>/index.xhtml</location>
-	</error-page>
 	<servlet-mapping>
 		<servlet-name>Faces Servlet</servlet-name>
 		<url-pattern>*.xhtml</url-pattern>
@@ -27,7 +23,4 @@
 		<param-name>BootsFaces_USETHEME</param-name>
 		<param-value>default</param-value>
 	</context-param>
-
-	<!--<context-param> <param-name>net.bootsfaces.legacy_error_classes</param-name> 
-		<param-value>true</param-value> </context-param> -->
 </web-app>

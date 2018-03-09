@@ -9,8 +9,8 @@
 		<managed-bean-scope>view</managed-bean-scope>
 	</managed-bean>
 	<managed-bean>
-		<managed-bean-name>MenuMB</managed-bean-name>
-		<managed-bean-class>br.com.ntconsult.poc.sisnep.beans.MenuMB</managed-bean-class>
+		<managed-bean-name>AbastecimentoMB</managed-bean-name>
+		<managed-bean-class>br.com.ntconsult.poc.sisnep.beans.AbastecimentoMB</managed-bean-class>
 		<managed-bean-scope>view</managed-bean-scope>
 	</managed-bean>
 	<application>

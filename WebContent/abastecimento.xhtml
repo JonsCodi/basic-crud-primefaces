@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title>#{msg['sinesp.title']}</title>
+</h:head>
+<h:body>
+	<h:form id="frota" style="width:100%;">
+		<p:growl id="messages" showDetail="true" life="5000" />
+		<p:toolbar style="float: left; position: absolute; left: 12.5%;">
+			<f:facet name="left">
+				<p:commandButton value="Novo" title="Novo" icon="ui-icon-plusthick"
+					onclick="#{p:widgetVar('cadastrar:cadastro_dialog')}.show()" />
+				<p:commandButton value="Editar" title="Editar" icon="ui-icon-pencil"
+					id="editarButton" />
+				<p:commandButton title="Delete" icon="ui-icon-trash"
+					id="deleteButton" />
+			</f:facet>
+		</p:toolbar>
+		<div>
+			<p:menu style="width: 5%; float: left; height: 455px;">
+				<p:menuitem value="Abastecimentos" url="abastecimento.xhtml"
+					icon="ui-icon-clock" />
+				<p:menuitem value="Veiculos" url="veiculo.xhtml"
+					icon=" ui-icon-cart" />
+				<p:menuitem value="Home" url="index.xhtml" icon="ui-icon-home" />
+				<p:menuitem value="Sair" url="logout.xhtml" icon="ui-icon-power" />
+			</p:menu>
+		</div>
+	</h:form>
+
+	<h:form id="cadastrar">
+		<p:dialog id="cadastro_dialog"
+			header="#{msg['sinesp.cadastrar.abastecimentos.title']}" modal="true"
+			width="400" height="350" responsive="true">
+			<p:messages id="msgs" />
+			<h:panelGrid cellpadding="5" columns="2" layout="grid">
+				<p:outputLabel for="placaComplete" value="Placa:" />
+				<p:autoComplete id="placaComplete" value="#{abastecimentoMB.placa}"
+					completeMethod="#{abastecimentoMB.completeText}" var="placa"
+					itemLabel="#{placa}" itemValue="placa"/>
+				<p:commandButton value="#{msg['sinesp.cadastrar']}"
+					actionListener="#{abastecimentoMB.add}" process="@this"
+					oncomplete="#{p:widgetVar('cadastrar:cadastro_dialog')}.hide();" />
+			</h:panelGrid>
+		</p:dialog>
+	</h:form>
+</h:body>
+</html>

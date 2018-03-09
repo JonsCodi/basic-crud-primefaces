@@ -4,9 +4,7 @@ package br.com.ntconsult.poc.sisnep.beans;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.Application;
@@ -17,8 +15,8 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.persistence.Persistence;
 
-import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
 
 import br.com.ntconsult.poc.sisnep.cliente.Result;
@@ -58,10 +56,10 @@ public class ConsultaMB implements Serializable {
 	private List<Categoria> listaCategorias;
 	
 	@Inject
-	private SinespClient sinespClient;
+	private VeiculoDAO veiculoDAO;
 	
 	@Inject
-	private VeiculoDAO dao;
+	private SinespClient sinespClient;
 	
 	@PostConstruct
 	public void init() {
@@ -79,8 +77,7 @@ public class ConsultaMB implements Serializable {
 	}
 	
 	public void inicializaListaVeiculos() {
-		// FIXME criar uma interface com os métodos do DAO
-		setListaVeiculos(dao.consultarTodosVeiculos());
+		setListaVeiculos(veiculoDAO.findAll());
 	}
 	
 	public void onRowSelect(SelectEvent event) {
@@ -94,7 +91,6 @@ public class ConsultaMB implements Serializable {
 	public void consultar() {
 		this.retornoConsulta = new ArrayList<>();
 		try {
-			
 			if (null != getVeiculo() && getVeiculo().getPlaca().isEmpty()) { return; }
 			if (null != getVeiculo().getPlaca() && getVeiculo().getPlaca().contains("-")) {
 				retorno = "Formato de placa inaváldo! Utilize o formato \"AAA9999\".";
@@ -123,12 +119,6 @@ public class ConsultaMB implements Serializable {
 			getVeiculo().setAno(String.valueOf(retornoConsulta.get(0).getModelYear()));
 			getVeiculo().setUf(retornoConsulta.get(0).getState());
 		}
-	}
-	
-	private void montaDadosVeiculo() {
-		getVeiculo().setCategoria(getCategoria());
-		getVeiculo().setEspecie(getEspecie());
-		getVeiculo().setTracao(getTracao());
 	}
 	
 	public void refresh() {
@@ -313,7 +303,9 @@ public class ConsultaMB implements Serializable {
 	}
 	
 	public void addVeiculo() {
-		if (null != getVeiculo()) dao.add(getVeiculo());
+		if (null != getVeiculo()) {
+			veiculoDAO.add(getVeiculo());
+		}
 		this.refresh();
 		FacesContext context = FacesContext.getCurrentInstance();
 		context.addMessage(null,
@@ -324,20 +316,20 @@ public class ConsultaMB implements Serializable {
 		this.selectedVeiculo.setCategoria(getVeiculo().getCategoria());
 		this.selectedVeiculo.setTracao(getVeiculo().getTracao());
 		this.selectedVeiculo.setEspecie(getVeiculo().getEspecie());
-		dao.update(this.selectedVeiculo);
+		veiculoDAO.update(this.selectedVeiculo);
 		this.refresh();
 		FacesContext context = FacesContext.getCurrentInstance();
-		context.addMessage(null, new FacesMessage("Sucesso",
-				"Você atualizou o veículo com a placa: ".concat(this.selectedVeiculo.getPlaca())));
+		context.addMessage(null,
+				new FacesMessage("Sucesso", "Você atualizou o veículo com a placa: ".concat(this.selectedVeiculo.getPlaca())));
 	}
 	
 	public void deleteVeiculo() {
-		dao.delete(selectedVeiculo);
+		veiculoDAO.delete(this.selectedVeiculo);
 		FacesContext context = FacesContext.getCurrentInstance();
 		context.addMessage(null, new FacesMessage("Sucesso",
 				"Você excluiu o veículo com a placa: ".concat(this.selectedVeiculo.getPlaca())));
-		this.setDisabled(true);
 		this.refresh();
+		this.setDisabled(true);
 	}
 	
 }

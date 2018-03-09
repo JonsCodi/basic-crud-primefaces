@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title>#{msg['sinesp.title']}</title>
+</h:head>
+<h:body>
+	<h:form id="frota" style="width:100%;">
+		<p:growl id="messages" showDetail="true" life="5000" />
+		<p:toolbar style="float: left; position: absolute; left: 12.5%;">
+			<f:facet name="left">
+				<p:commandButton value="Novo" title="Novo" icon="ui-icon-plusthick"
+					onclick="#{p:widgetVar('cadastrar:cadastro_dialog')}.show()" />
+				<p:commandButton value="Editar" title="Editar" icon="ui-icon-pencil"
+					id="editarButton"
+					onclick="#{p:widgetVar('editar:editar_dialog')}.show()"
+					disabled="#{consultaMB.disabled}" />
+				<p:commandButton title="Delete" icon="ui-icon-trash"
+					id="deleteButton" disabled="#{consultaMB.disabled}"
+					actionListener="#{consultaMB.deleteVeiculo}" process="@this"
+					update="frota:messages, frota:veiculosId, @this, frota:editarButton" />
+			</f:facet>
+		</p:toolbar>
+		<div>
+			<p:menu style="width: 5%; float: left; height: 455px;">
+				<p:menuitem value="Abastecimentos" url="abastecimento.xhtml"
+					icon="ui-icon-clock" />
+				<p:menuitem value="Veiculos" url="veiculo.xhtml" icon=" ui-icon-cart" />
+				<p:menuitem value="Home" url="index.xhtml" icon="ui-icon-home" />
+				<p:menuitem value="Sair" url="logout.xhtml" icon="ui-icon-power" />
+			</p:menu>
+			<p:dataTable value="#{consultaMB.listaVeiculos}" var="veiculo"
+				widgetVar="veiculosTable" class="editableVeiculoTable" rows="10"
+				id="veiculosId" paginator="true" rowKey="#{veiculo.placa}"
+				selection="#{consultaMB.selectedVeiculo}" selectionMode="single"
+				paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+				rowsPerPageTemplate="5,10,15,20,25,30"
+				emptyMessage="Não há veículos com a pesquisa fornecida por você..."
+				update="editar:cadastro_dialog" style="width: 85%; float: left;">
+				<p:ajax event="rowSelect" listener="#{consultaMB.onRowSelect}"
+					process="veiculosId"
+					update="frota:editarButton, editar:editar_dialog, frota:deleteButton" />
+				<p:ajax event="rowUnselect" listener="#{consultaMB.onRowUnSelect}"
+					process="veiculosId"
+					update="frota:editarButton, frota:deleteButton" />
+				<f:facet name="header">
+					<p:outputPanel>
+						<p:inputText id="globalFilter"
+							onkeyup="PF('veiculosTable').filter()" style="width:150px;"
+							placeholder="Procurando..."
+							filteredValue="#{consultaMB.filteredVeiculos}" />
+					</p:outputPanel>
+				</f:facet>
+				<p:column headerText="Placa" sortBy="#{veiculo.placa}"
+					filterMatchMode="contains" filterBy="#{veiculo.placa}">
+					<h:outputText value="#{veiculo.placa}" />
+				</p:column>
+				<p:column headerText="Ano" sortBy="#{veiculo.ano}"
+					filterMatchMode="contains" filterBy="#{veiculo.ano}">
+					<h:outputText value="#{veiculo.ano}" />
+				</p:column>
+				<p:column headerText="Modelo" sortBy="#{veiculo.modelo}"
+					filterMatchMode="contains" filterBy="#{veiculo.modelo}">
+					<h:outputText value="#{veiculo.modelo}" />
+				</p:column>
+				<p:column headerText="UF" sortBy="#{veiculo.uf}"
+					filterMatchMode="contains" filterBy="#{veiculo.uf}">
+					<h:outputText value="#{veiculo.uf}" />
+				</p:column>
+				<p:column headerText="Categoria"
+					sortBy="#{veiculo.categoria.descricaoCategoria}"
+					filterMatchMode="contains"
+					filterBy="#{veiculo.categoria.descricaoCategoria}">
+					<h:outputText value="#{veiculo.categoria.descricaoCategoria}" />
+				</p:column>
+				<p:column headerText="Tração"
+					sortBy="#{veiculo.tracao.descricaoTracao}"
+					filterMatchMode="contains"
+					filterBy="#{veiculo.tracao.descricaoTracao}">
+					<h:outputText value="#{veiculo.tracao.descricaoTracao}" />
+				</p:column>
+				<p:column headerText="Espécie"
+					sortBy="#{veiculo.especie.descricaoEspecie}"
+					filterMatchMode="contains"
+					filterBy="#{veiculo.especie.descricaoEspecie}">
+					<h:outputText value="#{veiculo.especie.descricaoEspecie}" />
+				</p:column>
+			</p:dataTable>
+		</div>
+	</h:form>
+	<h:form id="cadastrar">
+		<p:dialog id="cadastro_dialog"
+			header="#{msg['sinesp.cadastrar.veiculos.title']}" modal="true"
+			width="400" height="350" responsive="true">
+			<p:messages id="msgs" />
+			<h:panelGrid cellpadding="5" columns="2" layout="grid">
+				<p:outputLabel for="placa" value="Placa:" />
+				<p:inputText id="placa" value="#{consultaMB.veiculo.placa}"
+					required="true" label="Placa" style="text-transform:uppercase;"
+					update="cadastrar">
+					<p:ajax event="blur" update="modelo, ano, uf"
+						listener="#{consultaMB.consultar}" />
+				</p:inputText>
+				<p:outputLabel for="modelo" value="Modelo:" />
+				<p:inputText id="modelo" value="#{consultaMB.veiculo.modelo}"
+					name="modelo" readonly="true" />
+				<p:outputLabel for="ano" value="Ano:" />
+				<p:inputText id="ano" value="#{consultaMB.veiculo.ano}" name="ano"
+					readonly="true" />
+				<p:outputLabel for="uf" value="UF:" />
+				<p:inputText id="uf" value="#{consultaMB.veiculo.uf}" name="uf"
+					readonly="true" />
+				<p:outputLabel for="comboCategoria" value="Categoria:" />
+				<p:selectOneMenu value="#{consultaMB.cdCategoria}"
+					id="comboCategoria" process="@this" style="width:200px">
+					<f:selectItem itemLabel="Selecione" itemValue="" />
+					<f:selectItems value="#{consultaMB.listaCategorias}"
+						var="categoria" itemValue="#{categoria.codigoCategoria}"
+						itemLabel="#{categoria.descricaoCategoria}" />
+					<p:ajax listener="#{consultaMB.montaCategoriaVeiculo}" />
+				</p:selectOneMenu>
+				<p:outputLabel for="comboTracao" value="Tração:" />
+				<p:selectOneMenu value="#{consultaMB.cdTracao}" id="comboTracao"
+					process="@this" style="width:200px">
+					<f:selectItem itemLabel="Selecione" />
+					<f:selectItems value="#{consultaMB.listaTracao}" var="tracao"
+						itemValue="#{tracao.codigoTracao}"
+						itemLabel="#{tracao.descricaoTracao}" />
+					<p:ajax listener="#{consultaMB.montaTracaoVeiculo}" />
+
+				</p:selectOneMenu>
+				<p:outputLabel for="ComboEspecie" value="Espécie:" />
+				<p:selectOneMenu value="#{consultaMB.cdEspecie}" id="ComboEspecie"
+					process="@this" style="width:200px">
+					<f:selectItem itemLabel="Selecione" />
+					<f:selectItems value="#{consultaMB.listaEspecie}" var="especie"
+						itemValue="#{especie.codigoEspecie}"
+						itemLabel="#{especie.tipoEspecie} -  #{especie.descricaoEspecie}" />
+					<p:ajax listener="#{consultaMB.montaEspecieVeiculo}" />
+				</p:selectOneMenu>
+				<p:commandButton value="#{msg['sinesp.cadastrar']}"
+					actionListener="#{consultaMB.addVeiculo}"
+					update="frota:veiculosId, frota:messages" process=":cadastrar"
+					oncomplete="#{p:widgetVar('cadastrar:cadastro_dialog')}.hide();" />
+			</h:panelGrid>
+		</p:dialog>
+	</h:form>
+	<h:form id="editar">
+		<p:dialog id="editar_dialog"
+			header="#{msg['sinesp.editar.veiculos.title']}" modal="true"
+			width="400" height="350" responsive="true">
+			<p:messages id="msgs" />
+			<h:panelGrid cellpadding="5" columns="2" layout="grid">
+				<p:outputLabel for="placa" value="Placa:" />
+				<p:inputText id="placa" value="#{consultaMB.selectedVeiculo.placa}"
+					readonly="true" label="Placa" style="text-transform:uppercase;"
+					update="editar">
+				</p:inputText>
+				<p:outputLabel for="modelo" value="Modelo:" />
+				<p:inputText id="modelo"
+					value="#{consultaMB.selectedVeiculo.modelo}" name="modelo"
+					readonly="true" />
+				<p:outputLabel for="ano" value="Ano:" />
+				<p:inputText id="ano" value="#{consultaMB.selectedVeiculo.ano}"
+					name="ano" readonly="true" />
+				<p:outputLabel for="uf" value="UF:" />
+				<p:inputText id="uf" value="#{consultaMB.selectedVeiculo.uf}"
+					name="uf" readonly="true" />
+				<p:outputLabel for="comboCategoria" value="Categoria:" />
+				<p:selectOneMenu value="#{consultaMB.cdCategoria}"
+					id="comboCategoria" style="width:200px">
+					<f:selectItem
+						itemLabel="#{consultaMB.selectedVeiculo.categoria.descricaoCategoria}"
+						itemValue="#{consultaMB.selectedVeiculo.categoria.codigoCategoria}" />
+					<f:selectItems value="#{consultaMB.listaCategorias}"
+						var="categoria" itemValue="#{categoria.codigoCategoria}"
+						itemLabel="#{categoria.descricaoCategoria}" />
+					<p:ajax listener="#{consultaMB.montaCategoriaVeiculo()}" />
+				</p:selectOneMenu>
+				<p:outputLabel for="comboTracao" value="Tração:" />
+				<p:selectOneMenu value="#{consultaMB.cdTracao}" id="comboTracao"
+					process="@this" style="width:200px">
+					<f:selectItem
+						itemLabel="#{consultaMB.selectedVeiculo.tracao.descricaoTracao}"
+						itemValue="#{consultaMB.selectedVeiculo.tracao.codigoTracao}" />
+					<f:selectItems value="#{consultaMB.listaTracao}" var="tracao"
+						itemValue="#{tracao.codigoTracao}"
+						itemLabel="#{tracao.descricaoTracao}" />
+					<p:ajax listener="#{consultaMB.montaTracaoVeiculo}" />
+				</p:selectOneMenu>
+				<p:outputLabel for="ComboEspecie" value="Espécie:" />
+				<p:selectOneMenu value="#{consultaMB.cdEspecie}" id="ComboEspecie"
+					process="@this" style="width:200px">
+					<f:selectItem
+						itemLabel="#{consultaMB.selectedVeiculo.especie.descricaoEspecie}"
+						itemValue="#{consultaMB.selectedVeiculo.especie.codigoEspecie}" />
+					<f:selectItems value="#{consultaMB.listaEspecie}" var="especie"
+						itemValue="#{especie.codigoEspecie}"
+						itemLabel="#{especie.tipoEspecie} -  #{especie.descricaoEspecie}" />
+					<p:ajax listener="#{consultaMB.montaEspecieVeiculo}" />
+				</p:selectOneMenu>
+				<p:commandButton value="#{msg['sinesp.editar']}"
+					actionListener="#{consultaMB.editarVeiculo}"
+					update="frota:veiculosId, frota:messages" process=":editar"
+					oncomplete="#{p:widgetVar('editar:editar_dialog')}.hide()" />
+			</h:panelGrid>
+		</p:dialog>
+	</h:form>
+
+</h:body>
+</html>
